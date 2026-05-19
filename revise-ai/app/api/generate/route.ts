@@ -1,19 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import OpenAI from 'openai';
 import { getSummaryPrompt, getFlashcardsPrompt, getQCMPrompt } from '@/lib/prompts';
 import { extractTextFromPDF, truncateToTokenLimit } from '@/lib/parsePDF';
-
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-function safeParseJSON(str: string, fallback: any) {
-  try {
-    const match = str.match(/\{[\s\S]*\}/);
-    if (!match) return fallback;
-    return JSON.parse(match[0]);
-  } catch {
-    return fallback;
-  }
-}
+import { callAI, safeParseJSON } from '@/lib/aiClient';
 
 export async function POST(req: NextRequest) {
   try {
@@ -45,39 +33,20 @@ export async function POST(req: NextRequest) {
 
     const truncatedText = truncateToTokenLimit(text);
 
-    const [summaryRes, flashcardsRes, qcmRes] = await Promise.all([
-      openai.chat.completions.create({
-        model: 'gpt-4o-mini',
-        messages: [{ role: 'user', content: getSummaryPrompt(truncatedText) }],
-        temperature: 0.3,
-        max_tokens: 800,
-      }),
-      openai.chat.completions.create({
-        model: 'gpt-4o-mini',
-        messages: [{ role: 'user', content: getFlashcardsPrompt(truncatedText) }],
-        temperature: 0.3,
-        max_tokens: 1200,
-      }),
-      openai.chat.completions.create({
-        model: 'gpt-4o-mini',
-        messages: [{ role: 'user', content: getQCMPrompt(truncatedText) }],
-        temperature: 0.3,
-        max_tokens: 1500,
-      }),
+    // Appels parallèles avec fallback automatique
+    const [summaryRaw, flashcardsRaw, qcmRaw] = await Promise.all([
+      callAI(getSummaryPrompt(truncatedText)),
+      callAI(getFlashcardsPrompt(truncatedText)),
+      callAI(getQCMPrompt(truncatedText)),
     ]);
 
-    const summaryData = safeParseJSON(summaryRes.choices[0].message.content || '', {
+    const summaryData = safeParseJSON(summaryRaw, {
       summary: 'Erreur de génération du résumé.',
       key_concepts: [],
     });
 
-    const flashcardsData = safeParseJSON(flashcardsRes.choices[0].message.content || '', {
-      flashcards: [],
-    });
-
-    const qcmData = safeParseJSON(qcmRes.choices[0].message.content || '', {
-      qcm: [],
-    });
+    const flashcardsData = safeParseJSON(flashcardsRaw, { flashcards: [] });
+    const qcmData = safeParseJSON(qcmRaw, { qcm: [] });
 
     return NextResponse.json({
       summary: summaryData.summary,

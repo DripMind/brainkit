@@ -5,17 +5,24 @@ import { useRouter } from 'next/navigation';
 import FlashcardDeck from '@/components/FlashcardDeck';
 import QCMSection from '@/components/QCMSection';
 import SummarySection from '@/components/SummarySection';
+import FeedbackBar from '@/components/FeedbackBar';
 
 export default function ResultPage() {
   const router = useRouter();
   const [data, setData] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<'summary' | 'flashcards' | 'qcm'>('summary');
   const [visible, setVisible] = useState(false);
+  const [sessionId] = useState(() => `session_${Date.now()}`);
 
   useEffect(() => {
     const stored = sessionStorage.getItem('revise_result');
     if (!stored) { router.push('/'); return; }
     setData(JSON.parse(stored));
+
+    // Compteur d'utilisations
+    const count = parseInt(localStorage.getItem('revise_count') || '0') + 1;
+    localStorage.setItem('revise_count', String(count));
+
     setTimeout(() => setVisible(true), 100);
   }, []);
 
@@ -30,6 +37,7 @@ export default function ResultPage() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-violet-950 via-indigo-900 to-blue-900 px-4 py-8">
       <div className={`max-w-2xl mx-auto transition-all duration-500 ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
@@ -101,6 +109,10 @@ export default function ResultPage() {
             🖨️ Imprimer / PDF
           </button>
         </div>
+
+        {/* Feedback */}
+        <FeedbackBar sessionId={sessionId} />
+
       </div>
     </main>
   );
