@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { hasReachedLimit, isProUser, getRemainingGenerations, incrementQuota } from '@/lib/quota';
 
 export default function Home() {
   const [text, setText] = useState('');
@@ -9,8 +10,15 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [loadingMsg, setLoadingMsg] = useState('');
   const [error, setError] = useState('');
+  const [remaining, setRemaining] = useState(3);
+  const [isPro, setIsPro] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    setRemaining(getRemainingGenerations());
+    setIsPro(isProUser());
+  }, []);
 
   const loadingMessages = [
     'Lecture de ton cours... 📖',
@@ -26,6 +34,13 @@ export default function Home() {
       setError('Colle ton cours ou uploade un PDF pour commencer.');
       return;
     }
+
+    // Vérification quota
+    if (!isPro && hasReachedLimit()) {
+      router.push('/pricing');
+      return;
+    }
+
     setError('');
     setLoading(true);
 
@@ -53,6 +68,12 @@ export default function Home() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Erreur serveur');
 
+      // Incrémenter quota seulement si succès
+      if (!isPro) {
+        incrementQuota();
+        setRemaining(getRemainingGenerations());
+      }
+
       clearInterval(interval);
       sessionStorage.setItem('revise_result', JSON.stringify(data));
       router.push('/result');
@@ -75,9 +96,19 @@ export default function Home() {
           <span className="text-violet-300 font-bold">10 secondes</span>.
         </p>
         <p className="mt-1 text-sm text-indigo-400">
-          Résumé + Flashcards + QCM · Zéro compte · Gratuit
+          Résumé + Flashcards + QCM · Zéro compte · {isPro ? '⚡ Pro — illimité' : `${remaining} génération${remaining > 1 ? 's' : ''} gratuite${remaining > 1 ? 's' : ''} aujourd'hui`}
         </p>
       </div>
+
+      {/* Badge Pro */}
+      {!isPro && (
+        <button
+          onClick={() => router.push('/pricing')}
+          className="mb-5 bg-violet-500/20 border border-violet-400/50 text-violet-300 text-xs font-semibold px-4 py-2 rounded-full hover:bg-violet-500/30 transition-all"
+        >
+          ⚡ Passer au Pro — illimité à 4,99€/mois →
+        </button>
+      )}
 
       {/* Card */}
       <div className="w-full max-w-2xl bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-2xl border border-white/20">
@@ -121,12 +152,34 @@ export default function Home() {
               <p className="mt-3 text-red-400 text-sm text-center">{error}</p>
             )}
 
+            {/* Alerte quota presque épuisé */}
+            {!isPro && remaining === 1 && (
+              <p className="mt-3 text-yellow-400 text-xs text-center">
+                ⚠️ Dernière génération gratuite du jour —{' '}
+                <button onClick={() => router.push('/pricing')} className="underline hover:text-yellow-300">
+                  passe au Pro pour continuer
+                </button>
+              </p>
+            )}
+
             <button
               onClick={handleGenerate}
-              className="mt-5 w-full bg-violet-500 hover:bg-violet-400 text-white font-bold py-4 rounded-xl text-lg transition-all active:scale-95 shadow-lg shadow-violet-500/30"
+              disabled={!isPro && remaining === 0}
+              className="mt-5 w-full bg-violet-500 hover:bg-violet-400 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl text-lg transition-all active:scale-95 shadow-lg shadow-violet-500/30"
             >
-              ✨ Générer mon kit de révision
+              {!isPro && remaining === 0
+                ? '🔒 Limite atteinte — Passer au Pro'
+                : '✨ Générer mon kit de révision'}
             </button>
+
+            {!isPro && remaining === 0 && (
+              <button
+                onClick={() => router.push('/pricing')}
+                className="mt-2 w-full py-3 rounded-xl border border-violet-400/50 text-violet-300 text-sm font-semibold hover:bg-violet-500/20 transition-all"
+              >
+                ⚡ Voir les plans →
+              </button>
+            )}
           </>
         ) : (
           <div className="flex flex-col items-center justify-center py-16 gap-6">
@@ -140,7 +193,7 @@ export default function Home() {
       </div>
 
       <p className="mt-6 text-indigo-500 text-xs text-center">
-        Propulsé par GPT-4o-mini · Aucune donnée stockée
+        Propulsé par Mistral AI · Aucune donnée stockée
       </p>
     </main>
   );
