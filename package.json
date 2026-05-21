@@ -13,7 +13,8 @@
     "react": "^19",
     "react-dom": "^19",
     "pdf-parse": "^1.1.1",
-    "stripe": "^17.7.0"
+    "stripe": "^17.7.0",
+    "framer-motion": "^11.0.0"
   },
   "devDependencies": {
     "typescript": "^5",
