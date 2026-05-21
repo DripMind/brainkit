@@ -9,6 +9,7 @@ export default function Home() {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [loadingMsg, setLoadingMsg] = useState('');
+  const [loadingStep, setLoadingStep] = useState(0);
   const [error, setError] = useState('');
   const [remaining, setRemaining] = useState(3);
   const [isPro, setIsPro] = useState(false);
@@ -20,13 +21,13 @@ export default function Home() {
     setIsPro(isProUser());
   }, []);
 
-  const loadingMessages = [
-    'Lecture de ton cours... 📖',
-    'Analyse du contenu... 🧠',
-    'Génération du résumé... ✍️',
-    'Création des flashcards... 🃏',
-    'Préparation du QCM... 🎯',
-    'Finalisation de ton kit... ✨',
+  const loadingSteps = [
+    { msg: 'Lecture de ton cours...', icon: '📖' },
+    { msg: 'Analyse du contenu...', icon: '🧠' },
+    { msg: 'Génération du résumé...', icon: '✍️' },
+    { msg: 'Création des flashcards...', icon: '🃏' },
+    { msg: 'Préparation du QCM...', icon: '🎯' },
+    { msg: 'Finalisation de ton kit...', icon: '✨' },
   ];
 
   const handleGenerate = async () => {
@@ -34,8 +35,6 @@ export default function Home() {
       setError('Colle ton cours ou uploade un PDF pour commencer.');
       return;
     }
-
-    // Vérification quota
     if (!isPro && hasReachedLimit()) {
       router.push('/pricing');
       return;
@@ -43,12 +42,14 @@ export default function Home() {
 
     setError('');
     setLoading(true);
+    setLoadingStep(0);
+    setLoadingMsg(loadingSteps[0].msg);
 
-    let msgIndex = 0;
-    setLoadingMsg(loadingMessages[0]);
+    let step = 0;
     const interval = setInterval(() => {
-      msgIndex = (msgIndex + 1) % loadingMessages.length;
-      setLoadingMsg(loadingMessages[msgIndex]);
+      step = Math.min(step + 1, loadingSteps.length - 1);
+      setLoadingStep(step);
+      setLoadingMsg(loadingSteps[step].msg);
     }, 1800);
 
     try {
@@ -68,7 +69,6 @@ export default function Home() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Erreur serveur');
 
-      // Incrémenter quota seulement si succès
       if (!isPro) {
         incrementQuota();
         setRemaining(getRemainingGenerations());
@@ -85,116 +85,190 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-violet-950 via-indigo-900 to-blue-900 flex flex-col items-center justify-center px-4 py-10">
-      {/* Header */}
-      <div className="text-center mb-8">
-        <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight">
-          Revise<span className="text-violet-400">AI</span>
-        </h1>
-        <p className="mt-3 text-lg md:text-xl text-indigo-200 font-medium">
-          Transforme ton cours en kit de révision complet en{' '}
-          <span className="text-violet-300 font-bold">10 secondes</span>.
-        </p>
-        <p className="mt-1 text-sm text-indigo-400">
-          Résumé + Flashcards + QCM · Zéro compte · {isPro ? '⚡ Pro — illimité' : `${remaining} génération${remaining > 1 ? 's' : ''} gratuite${remaining > 1 ? 's' : ''} aujourd'hui`}
-        </p>
-      </div>
+    <main className="bg-animated noise min-h-screen flex flex-col items-center justify-center px-4 py-12 relative overflow-hidden">
 
-      {/* Badge Pro */}
-      {!isPro && (
-        <button
-          onClick={() => router.push('/pricing')}
-          className="mb-5 bg-violet-500/20 border border-violet-400/50 text-violet-300 text-xs font-semibold px-4 py-2 rounded-full hover:bg-violet-500/30 transition-all"
-        >
-          ⚡ Passer au Pro — illimité à 4,99€/mois →
-        </button>
-      )}
+      {/* Ambient orbs */}
+      <div className="orb absolute top-[-100px] left-[-100px] w-[500px] h-[500px] bg-violet-600/20 pointer-events-none" />
+      <div className="orb absolute bottom-[-150px] right-[-100px] w-[600px] h-[600px] bg-blue-600/15 pointer-events-none" style={{ animationDelay: '2s' }} />
+      <div className="orb absolute top-[40%] left-[60%] w-[300px] h-[300px] bg-purple-500/10 pointer-events-none" style={{ animationDelay: '1s' }} />
 
-      {/* Card */}
-      <div className="w-full max-w-2xl bg-white/10 backdrop-blur-md rounded-2xl p-6 shadow-2xl border border-white/20">
-        {!loading ? (
-          <>
-            <textarea
-              className="w-full h-48 bg-white/5 text-white placeholder-indigo-300 rounded-xl p-4 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-violet-400 border border-white/10"
-              placeholder="Colle ton cours ici... (texte, notes, paragraphes)"
-              value={text}
-              onChange={(e) => { setText(e.target.value); setFile(null); }}
-            />
+      <div className="relative z-10 w-full max-w-2xl">
 
-            <div className="flex items-center gap-3 my-4">
-              <div className="flex-1 h-px bg-white/20" />
-              <span className="text-indigo-300 text-xs font-medium">OU</span>
-              <div className="flex-1 h-px bg-white/20" />
-            </div>
+        {/* Header */}
+        <div className="text-center mb-10 fade-in-up">
+          <div className="inline-flex items-center gap-2 glass rounded-full px-4 py-1.5 mb-6 text-xs text-violet-300 font-medium">
+            <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
+            Propulsé par Mistral AI — Aucune donnée stockée
+          </div>
 
-            <div
-              className="w-full border-2 border-dashed border-violet-400/50 rounded-xl p-5 text-center cursor-pointer hover:border-violet-400 hover:bg-white/5 transition-all"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              {file ? (
-                <p className="text-violet-300 font-medium">📄 {file.name}</p>
-              ) : (
-                <>
-                  <p className="text-indigo-300 text-sm">📎 Clique pour uploader un PDF</p>
-                  <p className="text-indigo-500 text-xs mt-1">PDF texte uniquement (pas scanné)</p>
-                </>
-              )}
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".pdf"
-                className="hidden"
-                onChange={(e) => { setFile(e.target.files?.[0] || null); setText(''); }}
-              />
-            </div>
+          <h1 className="text-5xl md:text-7xl font-black tracking-tight mb-4">
+            <span className="text-white">Brain</span>
+            <span className="gradient-text text-glow">Kit</span>
+          </h1>
 
-            {error && (
-              <p className="mt-3 text-red-400 text-sm text-center">{error}</p>
-            )}
+          <p className="text-lg md:text-xl text-white/60 font-medium leading-relaxed">
+            Transforme ton cours en kit de révision complet<br className="hidden md:block" />
+            en <span className="text-violet-300 font-bold">10 secondes</span>.
+          </p>
 
-            {/* Alerte quota presque épuisé */}
-            {!isPro && remaining === 1 && (
-              <p className="mt-3 text-yellow-400 text-xs text-center">
-                ⚠️ Dernière génération gratuite du jour —{' '}
-                <button onClick={() => router.push('/pricing')} className="underline hover:text-yellow-300">
-                  passe au Pro pour continuer
-                </button>
-              </p>
-            )}
+          <div className="flex items-center justify-center gap-4 mt-5 flex-wrap">
+            {['📝 Résumé', '🃏 Flashcards', '🎯 QCM'].map((item) => (
+              <span key={item} className="text-sm text-white/40 font-medium">{item}</span>
+            ))}
+          </div>
+        </div>
 
+        {/* Pro badge */}
+        {!isPro && (
+          <div className="flex justify-center mb-6 fade-in-up-1">
             <button
-              onClick={handleGenerate}
-              disabled={!isPro && remaining === 0}
-              className="mt-5 w-full bg-violet-500 hover:bg-violet-400 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl text-lg transition-all active:scale-95 shadow-lg shadow-violet-500/30"
+              onClick={() => router.push('/pricing')}
+              className="group border-animated glass rounded-full px-5 py-2 text-xs font-semibold text-violet-300 hover:text-white transition-all duration-300 flex items-center gap-2"
             >
-              {!isPro && remaining === 0
-                ? '🔒 Limite atteinte — Passer au Pro'
-                : '✨ Générer mon kit de révision'}
+              <span className="text-yellow-400">⚡</span>
+              Passer au Pro — illimité à 4,99€/mois
+              <span className="group-hover:translate-x-1 transition-transform">→</span>
             </button>
-
-            {!isPro && remaining === 0 && (
-              <button
-                onClick={() => router.push('/pricing')}
-                className="mt-2 w-full py-3 rounded-xl border border-violet-400/50 text-violet-300 text-sm font-semibold hover:bg-violet-500/20 transition-all"
-              >
-                ⚡ Voir les plans →
-              </button>
-            )}
-          </>
-        ) : (
-          <div className="flex flex-col items-center justify-center py-16 gap-6">
-            <div className="w-16 h-16 border-4 border-violet-400 border-t-transparent rounded-full animate-spin" />
-            <p className="text-indigo-200 text-lg font-medium animate-pulse">{loadingMsg}</p>
-            <div className="w-full bg-white/10 rounded-full h-2">
-              <div className="bg-violet-400 h-2 rounded-full animate-pulse" style={{ width: '70%' }} />
-            </div>
           </div>
         )}
-      </div>
 
-      <p className="mt-6 text-indigo-500 text-xs text-center">
-        Propulsé par Mistral AI · Aucune donnée stockée
-      </p>
+        {/* Main card */}
+        <div className="glass-strong rounded-3xl p-6 shadow-2xl glow-violet fade-in-up-2">
+          {!loading ? (
+            <>
+              {/* Textarea */}
+              <div className="relative mb-4">
+                <textarea
+                  className="w-full h-44 bg-white/[0.03] text-white placeholder-white/25 rounded-2xl p-4 text-sm resize-none focus:outline-none focus:ring-1 focus:ring-violet-400/50 border border-white/[0.06] transition-all duration-300 focus:bg-white/[0.06] font-medium leading-relaxed"
+                  placeholder="Colle ton cours ici... (texte, notes, paragraphes)"
+                  value={text}
+                  onChange={(e) => { setText(e.target.value); setFile(null); }}
+                />
+                {text && (
+                  <div className="absolute bottom-3 right-3 text-white/20 text-xs">
+                    {text.length} car.
+                  </div>
+                )}
+              </div>
+
+              {/* Divider */}
+              <div className="flex items-center gap-3 my-5">
+                <div className="flex-1 h-px bg-white/[0.06]" />
+                <span className="text-white/30 text-xs font-semibold tracking-widest uppercase">ou</span>
+                <div className="flex-1 h-px bg-white/[0.06]" />
+              </div>
+
+              {/* PDF Upload */}
+              <div
+                className="w-full border border-dashed border-violet-400/20 rounded-2xl p-5 text-center cursor-pointer hover:border-violet-400/50 hover:bg-violet-500/5 transition-all duration-300 group"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                {file ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <span className="text-violet-400 text-lg">📄</span>
+                    <p className="text-violet-300 font-semibold text-sm">{file.name}</p>
+                    <span className="text-green-400 text-xs">✓</span>
+                  </div>
+                ) : (
+                  <>
+                    <p className="text-white/40 text-sm group-hover:text-white/60 transition-colors">
+                      📎 Clique pour uploader un PDF
+                    </p>
+                    <p className="text-white/20 text-xs mt-1">PDF texte uniquement · pas scanné</p>
+                  </>
+                )}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf"
+                  className="hidden"
+                  onChange={(e) => { setFile(e.target.files?.[0] || null); setText(''); }}
+                />
+              </div>
+
+              {/* Error */}
+              {error && (
+                <div className="mt-4 bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-3 text-red-400 text-sm text-center">
+                  {error}
+                </div>
+              )}
+
+              {/* Quota warning */}
+              {!isPro && remaining === 1 && (
+                <div className="mt-4 bg-yellow-500/10 border border-yellow-500/20 rounded-xl px-4 py-3 text-yellow-400 text-xs text-center">
+                  ⚠️ Dernière génération gratuite —{' '}
+                  <button onClick={() => router.push('/pricing')} className="underline hover:text-yellow-300 font-semibold">
+                    passe au Pro pour continuer
+                  </button>
+                </div>
+              )}
+
+              {/* CTA Button */}
+              <button
+                onClick={handleGenerate}
+                disabled={!isPro && remaining === 0}
+                className="btn-primary mt-5 w-full text-white font-bold py-4 rounded-2xl text-base relative z-10 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:transform-none"
+              >
+                <span className="relative z-10">
+                  {!isPro && remaining === 0
+                    ? '🔒 Limite atteinte — Passer au Pro'
+                    : '✨ Générer mon kit de révision'}
+                </span>
+              </button>
+
+              {/* Remaining counter */}
+              {!isPro && remaining > 0 && (
+                <p className="text-center text-white/25 text-xs mt-3">
+                  {remaining} génération{remaining > 1 ? 's' : ''} gratuite{remaining > 1 ? 's' : ''} restante{remaining > 1 ? 's' : ''} aujourd'hui
+                </p>
+              )}
+
+              {!isPro && remaining === 0 && (
+                <button
+                  onClick={() => router.push('/pricing')}
+                  className="mt-3 w-full py-3 rounded-2xl border border-violet-400/20 text-violet-400 text-sm font-semibold hover:bg-violet-500/10 transition-all duration-300"
+                >
+                  ⚡ Voir les plans →
+                </button>
+              )}
+            </>
+          ) : (
+            /* Loading state */
+            <div className="flex flex-col items-center justify-center py-14 gap-8">
+              <div className="relative">
+                <div className="spinner w-16 h-16" />
+                <div className="absolute inset-0 flex items-center justify-center text-2xl">
+                  {loadingSteps[loadingStep]?.icon}
+                </div>
+              </div>
+
+              <div className="text-center">
+                <p className="text-white font-semibold text-lg mb-1">{loadingMsg}</p>
+                <p className="text-white/30 text-sm">Ça prend environ 10 secondes...</p>
+              </div>
+
+              {/* Progress dots */}
+              <div className="flex gap-2">
+                {loadingSteps.map((_, i) => (
+                  <div
+                    key={i}
+                    className={`w-2 h-2 rounded-full transition-all duration-500 ${
+                      i <= loadingStep ? 'bg-violet-400 scale-110' : 'bg-white/15'
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Footer trust signals */}
+        <div className="flex items-center justify-center gap-6 mt-8 fade-in-up-4">
+          {['🔒 Aucune donnée stockée', '⚡ Résultat en 10s', '🆓 3 essais gratuits'].map((item) => (
+            <span key={item} className="text-white/25 text-xs font-medium">{item}</span>
+          ))}
+        </div>
+      </div>
     </main>
   );
 }
