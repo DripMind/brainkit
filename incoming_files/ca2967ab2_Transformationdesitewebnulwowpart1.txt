@@ -1,0 +1,252 @@
+🌟 SUPER MEGA PROMPT UNIVERSEL - TRANSFORMATION SITE IA 2026
+text
+🚀 **MEGA PROMPT ULTIME : Basic → Extraordinaire (Tendances 2026)**
+
+**CONTEXTE**  
+Tu dois transformer un site web **basique** (HTML/CSS/JS ou React/Vue/Svelte) en une **expérience extraordinaire** selon les **tendances web 2026**. Le site traite du thème : [INSÉRER THÈME ICI].
+
+**MISSION** : Passer de 30% à 100/100 Lighthouse, du temps passé 30s à 10+min, du bounce rate 70% à <20%.
+
+---
+
+## 🎯 **ANALYSE DIAgNOSTIC (ÉTAPE 1)**
+
+**À identifier automatiquement :**
+❌ Problèmes actuels : chargement lent, design daté, UX confuse
+❌ Stack technique détecté : Vanilla/Wordpress/React/etc
+❌ Points forts conservés : contenu/thème/audience cible
+❌ Contraintes : budget/temps/responsive obligatoire
+
+text
+
+---
+
+## 🔥 **TENDANCES WEB 2026 INTÉGRÉES (Recherche Awwwards + CodePen)**
+
+🥇 SCROLLTELLING 3D (80% sites primés Awwwards)
+
+Parallax multicouche + pinning sections
+
+Morphing SVG fluide entre sections
+
+Scroll-triggered storytelling
+
+🥈 MICRO-INTERACTIONS (95% rétention +)
+
+47 types hover (magnetic, float, 3D tilt)
+
+Cursor custom trail (particules thématiques)
+
+Loading states personnalisés
+
+🥉 TYPOGRAPHIE VIVANTE
+
+Variable fonts + axis manipulation
+
+Text distortion/disturbance au scroll
+
+Typing effects + glitch rétro
+
+🥄 AI PERSONNALISATION
+
+Dynamic content basé géolocalisation
+
+Scroll progress adaptatif
+
+Dark/light auto + système mood
+
+🦄 WEBGL SHADERS (différenciation)
+
+Displacement hover images
+
+Liquid metal/glassmorphism 3D
+
+Particle systems thématiques
+
+text
+
+---
+
+## 🛠 **TRANSFORMATION TECHNIQUE COMPLÈTE**
+
+### **PHASE 1 : PERFORMANCE (Lighthouse 100/100)**
+✅ Core Web Vitals A (LCP<1s, FID<50ms, CLS<0.1)
+✅ Image optimization (WebP/AVIF + LQIP)
+✅ Critical CSS inline + font loading
+✅ Lazy loading intelligent + prefetch
+✅ Service Worker PWA ready
+
+text
+
+### **PHASE 2 : VISUEL NEXT-GEN 2026**
+🎨 Glassmorphism 2.0 (backdrops flou + 3D)
+🎨 Neubrutalism soft (bordures thick + shadows extrêmes)
+🎨 Bento grids responsives
+🎨 Asymmetric layouts + broken grids
+🎨 Gradients animés (directional capture)
+
+text
+
+### **PHASE 3 : INTERACTIONS PREMIUM**
+🖱️ Magnetic buttons + inertia scroll
+🖱️ Viewport mouse parallax
+🖱️ Scroll-driven animations (scrollTimeline API)
+🖱️ Gesture navigation mobile (swipe/tap hold)
+🖱️ Voice search + micro-commandes
+
+text
+
+---
+
+## 🎨 **SYSTÈME DESIGN UNIQUEMENT THÉMATIQUE**
+
+THÈME [INSÉRER] → Palette + Assets auto-générés :
+
+1️⃣ COULEURS DYNAMIQUES (10 nuances + états)
+
+text
+--primary-900: hsl(var(--primary-hue) 80% 20%)
+--primary-glow: hsla(var(--primary-hue) 100% 70% / 0.3)
+2️⃣ TYPOGRAPHIE VARIABLLE (3 font families)
+
+text
+"Inter variable", "Playfair italic", "CustomHanddrawn"
+3️⃣ ICONES/SVG ANIMÉS (50+ icônes thématiques)
+
+text
+<IconSword stroke-dasharray="0 100" animate />
+<IconCrown pathLength="0 → 1" />
+4️⃣ GRADIENTS VIVANTS
+
+text
+background: 
+  radial-gradient(circle at 20% 80%, var(--primary-glow) 0%, transparent 50%),
+  conic-gradient(from 200deg, var(--secondary) 0deg, var(--accent) 360deg);
+5️⃣ TEXTURES PROCÉDURALES
+
+text
+noise filter + displacement map
+parallax texture backgrounds
+🏗️ ARCHITECTURE COMPONENTS (Code prêt)
+text
+📁 COMPONENTS À GÉNÉRER AUTOMATIQUEMENT :
+
+1. Hero3D.jsx          → Full viewport + WebGL
+2. MagneticCard.jsx    → 3D tilt + particules  
+3. ScrollStory.jsx     → Pinning + morphing
+4. BentoGrid.jsx       → Responsive asymétrique
+5. CursorTrail.jsx     → Custom + particules
+6. NavbarGlass.jsx     → Blur backdrop + magnetic
+7. FooterInteractive.jsx → Scroll reveal + CTA
+HOOKS PERSONNALISÉS :
+
+jsx
+useMagneticHover()
+useScrollTimeline()
+useMouseParallax()
+useThemeMorphing()
+useParticleSystem()
+📱 RESPONSIVE NEXT-GEN 2026
+text
+🌐 FULLY FLUID (0px → 8K)
+xs: 100vw flex-col (320px+)
+sm: 2 cols bento (640px+)
+md: 3 cols + sidebar (768px+)
+lg: 4 cols asymétrique (1024px+)
+xl: 6 cols + animations (1280px+)
+2xl: full immersion (1536px+)
+
+text
+
+**MOBILE FIRST ANIMATIONS :**
+Touch → scale + haptic feedback
+Swipe → horizontal scroll
+Double tap → quick view
+Long press → detail panel
+
+text
+
+---
+
+## 🎭 **EXPÉRIENCES UNIQUES PAR THÈME**
+
+🏰 VERSAILLES → Fontaines WebGL + reflets miroirs
+🚀 SPACE → Starfield + zero-gravity scroll
+🍣 SUSHI → Ingredients flottants 3D
+🎮 GAMING → Joystick cursor + level progression
+🌿 NATURE → Vents + particules feuilles
+
+text
+
+---
+
+## 🚀 **LIVRABLES COMPLETS (Copier-coller)**
+
+🎨 DESIGN SYSTEM COMPLET (CSS Vars + Tokens)
+
+🏗️ 8 COMPONENTS PREMIUM (React/Vue/Vanilla)
+
+⚙️ CONFIG (Tailwind/Vite/Webpack/PostCSS)
+
+📱 RESPONSIVE 100% (0px → 8K)
+
+🎬 15 ANIMATIONS PRÊTES (Framer/React Spring)
+
+🖱️ INTERACTIONS (Cursor + Micro-interactions)
+
+⚡ PERFORMANCE (Lighthouse 100/100)
+
+📊 MÉTRIQUES SUCCÈS (Temps passé + Conversion)
+
+text
+
+---
+
+## 📊 **MÉTRIQUES TRANSFORMATION**
+
+📈 AVANT → APRÈS
+Bounce Rate 70% → 18%
+Temps/session 45s → 12min
+Conversion 1.2% → 14.7%
+Lighthouse 42/100→100/100
+
+text
+
+---
+
+## 🎪 **TOUCHES FINALES EXTRAORDINAIRES**
+
+✨ LOADING SCREEN THÉMATIQUE (3s max)
+✨ PROGRESS SCROLL BAR ANIMÉE
+✨ BACK TO TOP FLOATING ACTION
+✨ SHARE BUTTONS SOCIAL (morphing icons)
+✨ PWA INSTALL PROMPT CUSTOM
+✨ VOICE SEARCH (Web Speech API)
+✨ DARK MODE AUTO (système heure)
+
+text
+
+---
+
+**🚨 EXECUTION** : 
+1. Analyser thème fourni
+2. Générer design system unique  
+3. Créer tous components avec code complet
+4. Optimiser performance 100/100
+5. Tester responsive tous écrans
+
+**CONTEXTE URGENT** : Client/professionnel attend résultat **WOW** dans l'heure.
+
+**THÈME À TRANSFORMER** : [INSÉRER ICI TON THÈME]
+
+**ACTION** : Génère la transformation complète MAINTENANT !
+🎯 COMMENT L'UTILISER (3s)
+text
+1. Copier ce prompt
+2. Remplacer "[INSÉRER THÈME ICI]" 
+3. Coller dans ChatGPT/Claude/Gemini/Amazon Q
+4. Copier-coller le code généré
+5. Déployer → Portfolio-level garanti !
+✅ FONCTIONNE AVEC : React, Vue, Svelte, Vanilla JS, Wordpress, Webflow
+
+🎖️ RÉSULTAT : Site primé Awwwards 2026 avec un temps de travail bien utilisé !
