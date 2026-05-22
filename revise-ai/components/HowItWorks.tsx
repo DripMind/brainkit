@@ -5,12 +5,12 @@ const STEPS = [
   {
     icon: '📎',
     title: 'Tu uploades ton cours',
-    desc: 'PDF, texte, n\'importe quel format. En quelques secondes, BrainKit analyse le contenu.',
+    desc: "PDF, texte, n'importe quel format. En quelques secondes, BrainKit analyse le contenu.",
     number: '01',
   },
   {
     icon: '🧠',
-    title: 'L\'IA analyse et structure',
+    title: "L'IA analyse et structure",
     desc: 'Mistral AI identifie les concepts clés, les hiérarchise et les reformule pour la mémorisation.',
     number: '02',
   },
@@ -67,12 +67,10 @@ export default function HowItWorks() {
             <div
               key={i}
               className="step-card"
-              style={{ transitionDelay: `${i * 150}ms` }}
-              data-visible={visible}
-              ref={el => {
-                if (el) {
-                  el.classList.toggle('visible', visible);
-                }
+              style={{
+                opacity: visible ? 1 : 0,
+                transform: visible ? 'translateY(0)' : 'translateY(30px)',
+                transition: `opacity 0.6s ease ${i * 0.15}s, transform 0.6s ease ${i * 0.15}s`,
               }}
             >
               {/* Step number */}
@@ -95,13 +93,6 @@ export default function HowItWorks() {
               <p className="font-dm text-base leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
                 {step.desc}
               </p>
-
-              {/* Connector arrow (not on last) */}
-              {i < STEPS.length - 1 && (
-                <div className="hidden md:block absolute top-1/2 -right-6 text-2xl" style={{ color: 'var(--border-violet)' }}>
-                  →
-                </div>
-              )}
             </div>
           ))}
         </div>

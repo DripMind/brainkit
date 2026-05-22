@@ -5,7 +5,7 @@ const FEATURES = [
   {
     icon: '📝',
     title: 'Résumé intelligent',
-    desc: 'Les points essentiels de ton cours, restructurés pour la mémorisation. Plus de remplissage, que l\'essentiel.',
+    desc: "Les points essentiels de ton cours, restructurés pour la mémorisation. Plus de remplissage, que l'essentiel.",
     color: 'var(--color-violet)',
   },
   {
@@ -17,7 +17,7 @@ const FEATURES = [
   {
     icon: '🎯',
     title: 'QCM avec correction',
-    desc: 'Teste-toi immédiatement. L\'IA explique chaque réponse correcte et incorrecte.',
+    desc: "Teste-toi immédiatement. L'IA explique chaque réponse correcte et incorrecte.",
     color: 'var(--color-accent)',
   },
 ];
@@ -67,11 +67,10 @@ export default function FeatureCards() {
             <div
               key={i}
               className="feature-card"
-              ref={el => {
-                if (el) {
-                  el.style.transitionDelay = `${i * 100}ms`;
-                  el.classList.toggle('visible', visible);
-                }
+              style={{
+                opacity: visible ? 1 : 0,
+                transform: visible ? 'translateY(0)' : 'translateY(30px)',
+                transition: `opacity 0.6s ease ${i * 0.1}s, transform 0.6s ease ${i * 0.1}s`,
               }}
             >
               {/* Icon */}
@@ -86,15 +85,12 @@ export default function FeatureCards() {
               </div>
 
               {/* Gradient accent line */}
-              <div
-                className="w-8 h-0.5 mb-5 rounded"
-                style={{ background: f.color }}
-              />
+              <div className="w-8 h-0.5 mb-5 rounded" style={{ background: f.color }} />
 
               <h3 className="font-syne text-xl font-bold mb-4" style={{ color: 'var(--text-primary)' }}>
                 {f.title}
               </h3>
-              <p className="font-dm text-base leading-relaxed" style={{ color: 'var(--text-secondary)', fontSize: '15px' }}>
+              <p className="font-dm leading-relaxed" style={{ color: 'var(--text-secondary)', fontSize: '15px' }}>
                 {f.desc}
               </p>
             </div>
