@@ -33,8 +33,9 @@ export default function HowItWorks() {
           if (entry.isIntersecting) {
             const cards = entry.target.querySelectorAll('.step-card');
             cards.forEach((card, i) => {
-              card.style.animation = `fadeInUp 0.6s ease-out ${i * 0.15}s forwards`;
-              card.style.opacity = '0';
+              const htmlCard = card as HTMLElement;
+              htmlCard.style.animation = `fadeInUp 0.6s ease-out ${i * 0.15}s forwards`;
+              htmlCard.style.opacity = '0';
             });
           }
         });
