@@ -1,5 +1,4 @@
 'use client';
-
 import { useState } from 'react';
 
 interface Question {
@@ -11,53 +10,74 @@ interface Question {
 
 interface Props {
   qcm: Question[];
+  onComplete?: (correct: number, wrong: number) => void;
 }
 
-export default function QCMSection({ qcm }: Props) {
+export default function QCMSection({ qcm, onComplete }: Props) {
   const [answers, setAnswers] = useState<Record<number, string>>({});
   const [submitted, setSubmitted] = useState(false);
 
   const score = Object.entries(answers).filter(([i, a]) => qcm[parseInt(i)]?.correct === a).length;
+  const wrong = Object.keys(answers).length - score;
+  const pct = Math.round((score / qcm.length) * 100);
 
   const choiceLabels = ['A', 'B', 'C', 'D'] as const;
+
+  const handleSubmit = () => {
+    setSubmitted(true);
+    onComplete?.(score, wrong);
+  };
 
   return (
     <div className="space-y-4">
       {qcm.map((q, i) => (
-        <div key={i} className="bg-white/10 rounded-2xl p-5 border border-white/10">
-          <p className="text-white font-semibold text-sm mb-3">
-            <span className="text-violet-400 font-bold">Q{i + 1}.</span> {q.question}
+        <div
+          key={i}
+          className="rounded-2xl p-5"
+          style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)' }}
+        >
+          <p className="font-dm font-semibold text-sm mb-4" style={{ color: 'var(--text-primary)', fontSize: '15px' }}>
+            <span className="font-mono text-xs mr-2" style={{ color: 'var(--color-violet)' }}>Q{i + 1}.</span>
+            {q.question}
           </p>
           <div className="space-y-2">
             {choiceLabels.map((label) => {
-              const isSelected = answers[i] === label;
+              const val = q.choices[label];
+              const selected = answers[i] === label;
               const isCorrect = q.correct === label;
-              const isWrong = submitted && isSelected && !isCorrect;
-              const showCorrect = submitted && isCorrect;
+
+              let borderColor = 'var(--border-subtle)';
+              let bg = 'transparent';
+              let textColor = 'var(--text-secondary)';
+
+              if (submitted) {
+                if (isCorrect) { borderColor = 'rgba(74,222,128,0.5)'; bg = 'rgba(74,222,128,0.08)'; textColor = '#4ade80'; }
+                else if (selected && !isCorrect) { borderColor = 'rgba(255,107,107,0.5)'; bg = 'rgba(255,107,107,0.08)'; textColor = 'var(--color-accent)'; }
+              } else if (selected) {
+                borderColor = 'rgba(108,71,255,0.6)'; bg = 'rgba(108,71,255,0.1)'; textColor = 'var(--text-primary)';
+              }
 
               return (
                 <button
                   key={label}
+                  onClick={() => !submitted && setAnswers(a => ({ ...a, [i]: label }))}
                   disabled={submitted}
-                  onClick={() => setAnswers((a) => ({ ...a, [i]: label }))}
-                  className={`w-full text-left px-4 py-2.5 rounded-xl text-sm transition-all border ${
-                    showCorrect
-                      ? 'bg-green-500/20 border-green-400/40 text-green-200'
-                      : isWrong
-                      ? 'bg-red-500/20 border-red-400/40 text-red-200'
-                      : isSelected
-                      ? 'bg-violet-500/30 border-violet-400/40 text-white'
-                      : 'bg-white/5 border-white/10 text-indigo-200 hover:bg-white/10'
-                  }`}
+                  className="w-full text-left flex items-center gap-3 rounded-xl px-4 py-3 font-dm text-sm transition-all duration-200 disabled:cursor-default"
+                  style={{ border: `1px solid ${borderColor}`, background: bg, color: textColor, fontSize: '14px' }}
                 >
-                  <span className="font-bold mr-2">{label}.</span>
-                  {q.choices[label]}
+                  <span className="font-mono text-xs w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0"
+                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                    {label}
+                  </span>
+                  {val}
+                  {submitted && isCorrect && <span className="ml-auto">✓</span>}
+                  {submitted && selected && !isCorrect && <span className="ml-auto">✗</span>}
                 </button>
               );
             })}
           </div>
-          {submitted && (
-            <p className="mt-3 text-indigo-300 text-xs bg-white/5 rounded-lg p-2">
+          {submitted && q.explanation && (
+            <p className="mt-3 font-dm text-xs leading-relaxed px-1" style={{ color: 'var(--text-muted)', fontSize: '13px' }}>
               💡 {q.explanation}
             </p>
           )}
@@ -66,24 +86,34 @@ export default function QCMSection({ qcm }: Props) {
 
       {!submitted ? (
         <button
-          onClick={() => setSubmitted(true)}
+          onClick={handleSubmit}
           disabled={Object.keys(answers).length < qcm.length}
-          className="w-full bg-violet-500 hover:bg-violet-400 disabled:opacity-40 text-white font-bold py-4 rounded-xl transition-all"
+          className="w-full btn-primary rounded-2xl py-4 font-dm font-semibold disabled:opacity-30 disabled:cursor-not-allowed"
         >
-          Valider mes réponses ({Object.keys(answers).length}/{qcm.length})
+          Valider le QCM
+          {Object.keys(answers).length < qcm.length && (
+            <span className="ml-2 font-mono text-xs opacity-50">({Object.keys(answers).length}/{qcm.length})</span>
+          )}
         </button>
       ) : (
-        <div className="bg-white/10 rounded-2xl p-5 text-center border border-white/10">
-          <p className="text-3xl font-black text-white">{score}/{qcm.length}</p>
-          <p className="text-indigo-300 mt-1 text-sm">
-            {score === qcm.length ? '🎉 Parfait ! Tu maîtrises ce cours.' : score >= qcm.length / 2 ? '👍 Bon score ! Revois les erreurs.' : '📚 Continue à réviser, tu y es presque !'}
+        <div
+          className="rounded-2xl p-5 text-center"
+          style={{
+            background: pct >= 80 ? 'rgba(74,222,128,0.08)' : pct >= 50 ? 'rgba(108,71,255,0.08)' : 'rgba(255,107,107,0.08)',
+            border: `1px solid ${pct >= 80 ? 'rgba(74,222,128,0.3)' : pct >= 50 ? 'var(--border-violet)' : 'rgba(255,107,107,0.3)'}`,
+          }}
+        >
+          <p className="font-syne text-3xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>
+            {score}/{qcm.length}
           </p>
-          <button
-            onClick={() => { setAnswers({}); setSubmitted(false); }}
-            className="mt-4 text-violet-400 text-sm hover:text-violet-300 transition-all"
-          >
-            🔄 Recommencer le QCM
-          </button>
+          <p className="font-mono text-xs" style={{ color: 'var(--text-muted)' }}>
+            {pct}% de réussite · +{score * 5 + wrong * 2} XP gagnés
+          </p>
+          <p className="font-dm text-sm mt-2" style={{ color: 'var(--text-secondary)' }}>
+            {pct >= 80 ? '🎯 Excellent — ces notions sont bien ancrées.' :
+             pct >= 50 ? '📈 Bien — continue à réviser les erreurs.' :
+             '🔄 Relis le résumé et retente dans quelques jours.'}
+          </p>
         </div>
       )}
     </div>

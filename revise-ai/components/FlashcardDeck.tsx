@@ -1,115 +1,121 @@
 'use client';
-
 import { useState } from 'react';
 
-interface Flashcard {
-  question: string;
-  answer: string;
-}
+interface Flashcard { question: string; answer: string; }
+interface Props { flashcards: Flashcard[]; onComplete?: (correct: number, wrong: number) => void; }
 
-interface Props {
-  flashcards: Flashcard[];
-}
-
-export default function FlashcardDeck({ flashcards }: Props) {
+export default function FlashcardDeck({ flashcards, onComplete }: Props) {
   const [current, setCurrent] = useState(0);
   const [flipped, setFlipped] = useState(false);
-  const [known, setKnown] = useState<Set<number>>(new Set());
+  const [correct, setCorrect] = useState(0);
+  const [wrong, setWrong] = useState(0);
+  const [done, setDone] = useState(false);
+  const [revealed, setRevealed] = useState(false);
 
   const card = flashcards[current];
-  const progress = Math.round(((current + 1) / flashcards.length) * 100);
+  const total = flashcards.length;
 
-  const next = () => { setFlipped(false); setTimeout(() => setCurrent((c) => Math.min(c + 1, flashcards.length - 1)), 150); };
-  const prev = () => { setFlipped(false); setTimeout(() => setCurrent((c) => Math.max(c - 1, 0)), 150); };
-  const markKnown = () => { setKnown((k) => new Set([...k, current])); next(); };
+  const flip = () => { setFlipped(f => !f); setRevealed(true); };
+
+  const answer = (knew: boolean) => {
+    if (knew) setCorrect(c => c + 1); else setWrong(w => w + 1);
+    setFlipped(false);
+    setRevealed(false);
+    setTimeout(() => {
+      if (current + 1 >= total) {
+        setDone(true);
+        onComplete?.(knew ? correct + 1 : correct, knew ? wrong : wrong + 1);
+      } else {
+        setCurrent(c => c + 1);
+      }
+    }, 150);
+  };
+
+  if (done) {
+    const pct = Math.round((correct / total) * 100);
+    return (
+      <div className="rounded-2xl p-8 text-center" style={{ background: 'var(--bg-card)', border: '1px solid var(--border-subtle)' }}>
+        <p className="font-syne text-4xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>{correct}/{total}</p>
+        <p className="font-mono text-xs mb-4" style={{ color: 'var(--text-muted)' }}>
+          {pct}% · +{correct * 5 + wrong * 2} XP
+        </p>
+        <p className="font-dm text-sm" style={{ color: 'var(--text-secondary)' }}>
+          {pct >= 80 ? '🃏 Maîtrise solide.' : pct >= 50 ? '📈 Continue, tu progresses.' : '🔄 Reviens demain pour consolider.'}
+        </p>
+        <button
+          onClick={() => { setCurrent(0); setCorrect(0); setWrong(0); setDone(false); setFlipped(false); }}
+          className="mt-5 px-6 py-3 rounded-xl font-dm text-sm font-semibold transition-all"
+          style={{ background: 'rgba(108,71,255,0.15)', border: '1px solid var(--border-violet)', color: 'var(--color-violet)', cursor: 'pointer' }}
+        >
+          Recommencer
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
       {/* Progress */}
-      <div className="flex items-center justify-between text-indigo-300 text-xs mb-2">
-        <span>{current + 1} / {flashcards.length}</span>
-        <span>{known.size} maîtrisées ✅</span>
-      </div>
-      <div className="w-full bg-white/10 rounded-full h-1.5 mb-4">
-        <div className="bg-violet-400 h-1.5 rounded-full transition-all" style={{ width: `${progress}%` }} />
+      <div className="flex items-center gap-3">
+        <div className="flex-1 h-1 rounded-full overflow-hidden" style={{ background: 'var(--border-subtle)' }}>
+          <div
+            className="h-full rounded-full transition-all duration-500"
+            style={{ width: `${((current) / total) * 100}%`, background: 'linear-gradient(90deg, var(--color-violet), var(--color-cyan))' }}
+          />
+        </div>
+        <span className="font-mono text-xs" style={{ color: 'var(--text-muted)' }}>{current + 1}/{total}</span>
       </div>
 
       {/* Card */}
       <div
-        className="cursor-pointer"
-        style={{ perspective: '1000px' }}
-        onClick={() => setFlipped((f) => !f)}
+        onClick={flip}
+        className="relative cursor-pointer rounded-2xl p-8 text-center min-h-[220px] flex flex-col items-center justify-center select-none transition-all duration-300"
+        style={{
+          background: flipped ? 'rgba(108,71,255,0.06)' : 'var(--bg-card)',
+          border: `1px solid ${flipped ? 'var(--border-violet)' : 'var(--border-subtle)'}`,
+          boxShadow: flipped ? 'var(--glow-violet)' : 'none',
+        }}
       >
-        <div
-          className="relative w-full transition-transform duration-500"
-          style={{
-            transformStyle: 'preserve-3d',
-            transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
-            minHeight: '180px',
-          }}
-        >
-          {/* Front */}
-          <div
-            className="absolute inset-0 bg-white/10 border border-white/20 rounded-2xl p-6 flex flex-col items-center justify-center text-center"
-            style={{ backfaceVisibility: 'hidden' }}
+        <span className="font-mono text-xs mb-4 uppercase tracking-widest" style={{ color: flipped ? 'var(--color-violet)' : 'var(--text-muted)' }}>
+          {flipped ? '↩ Réponse' : '→ Question'}
+        </span>
+        <p className="font-dm font-medium" style={{ color: 'var(--text-primary)', fontSize: '17px', lineHeight: '1.6' }}>
+          {flipped ? card.answer : card.question}
+        </p>
+        {!revealed && (
+          <p className="mt-4 font-mono text-xs" style={{ color: 'var(--text-muted)', opacity: 0.5 }}>
+            Clique pour révéler
+          </p>
+        )}
+      </div>
+
+      {/* Answer buttons — apparaissent seulement après flip */}
+      {revealed && (
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            onClick={() => answer(false)}
+            className="py-4 rounded-2xl font-dm font-semibold text-sm transition-all duration-200 hover:scale-[1.02] active:scale-95"
+            style={{ background: 'rgba(255,107,107,0.1)', border: '1px solid rgba(255,107,107,0.3)', color: 'var(--color-accent)', cursor: 'pointer' }}
           >
-            <p className="text-indigo-400 text-xs uppercase tracking-wide mb-3">Question</p>
-            <p className="text-white font-semibold text-base">{card.question}</p>
-            <p className="text-indigo-400 text-xs mt-4">Clique pour voir la réponse</p>
-          </div>
-          {/* Back */}
-          <div
-            className="absolute inset-0 bg-violet-500/20 border border-violet-400/30 rounded-2xl p-6 flex flex-col items-center justify-center text-center"
-            style={{ backfaceVisibility: 'hidden', transform: 'rotateY(180deg)' }}
+            ✗ Je ne savais pas
+            <span className="block font-mono text-xs mt-0.5 opacity-50">+{2} XP</span>
+          </button>
+          <button
+            onClick={() => answer(true)}
+            className="py-4 rounded-2xl font-dm font-semibold text-sm transition-all duration-200 hover:scale-[1.02] active:scale-95"
+            style={{ background: 'rgba(74,222,128,0.1)', border: '1px solid rgba(74,222,128,0.3)', color: '#4ade80', cursor: 'pointer' }}
           >
-            <p className="text-violet-300 text-xs uppercase tracking-wide mb-3">Réponse</p>
-            <p className="text-white font-semibold text-base">{card.answer}</p>
-          </div>
+            ✓ Je savais
+            <span className="block font-mono text-xs mt-0.5 opacity-50">+{5} XP</span>
+          </button>
         </div>
-      </div>
+      )}
 
-      {/* Controls */}
-      <div className="flex gap-3 mt-4">
-        <button
-          onClick={prev}
-          disabled={current === 0}
-          className="flex-1 py-3 rounded-xl bg-white/10 text-indigo-300 text-sm font-semibold disabled:opacity-30 hover:bg-white/20 transition-all"
-        >
-          ← Précédente
-        </button>
-        <button
-          onClick={markKnown}
-          className="flex-1 py-3 rounded-xl bg-green-500/20 text-green-300 text-sm font-semibold hover:bg-green-500/30 transition-all border border-green-400/20"
-        >
-          ✅ Je sais
-        </button>
-        <button
-          onClick={next}
-          disabled={current === flashcards.length - 1}
-          className="flex-1 py-3 rounded-xl bg-white/10 text-indigo-300 text-sm font-semibold disabled:opacity-30 hover:bg-white/20 transition-all"
-        >
-          Suivante →
-        </button>
-      </div>
-
-      {/* All cards list */}
-      <div className="mt-4 space-y-2">
-        <p className="text-indigo-400 text-xs uppercase tracking-wide">Toutes les cartes</p>
-        {flashcards.map((f, i) => (
-          <div
-            key={i}
-            onClick={() => { setFlipped(false); setCurrent(i); }}
-            className={`p-3 rounded-xl cursor-pointer transition-all border text-sm ${
-              i === current
-                ? 'bg-violet-500/20 border-violet-400/40 text-white'
-                : known.has(i)
-                ? 'bg-green-500/10 border-green-400/20 text-indigo-300'
-                : 'bg-white/5 border-white/10 text-indigo-300 hover:bg-white/10'
-            }`}
-          >
-            <span className="font-medium">Q{i + 1}:</span> {f.question}
-          </div>
-        ))}
+      {/* Stats */}
+      <div className="flex items-center justify-center gap-6 font-mono text-xs" style={{ color: 'var(--text-muted)' }}>
+        <span style={{ color: '#4ade80' }}>✓ {correct}</span>
+        <span>·</span>
+        <span style={{ color: 'var(--color-accent)' }}>✗ {wrong}</span>
       </div>
     </div>
   );
