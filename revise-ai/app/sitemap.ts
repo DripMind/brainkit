@@ -3,13 +3,13 @@ import { MetadataRoute } from 'next';
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
-      url: 'https://brainkit-dripminds-projects.vercel.app',
+      url: 'https://brainkit-reviseai.vercel.app',
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 1,
     },
     {
-      url: 'https://brainkit-dripminds-projects.vercel.app/pricing',
+      url: 'https://brainkit-reviseai.vercel.app/pricing',
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.8,

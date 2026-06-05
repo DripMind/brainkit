@@ -4,7 +4,7 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'BrainKit — Transforme ton cours en kit de révision en 10 secondes',
   description: 'Résumé + Flashcards + QCM générés automatiquement par IA. Zéro compte, 3 générations gratuites par jour.',
-  metadataBase: new URL('https://brainkit-dripminds-projects.vercel.app'),
+  metadataBase: new URL('https://brainkit-reviseai.vercel.app'),
   alternates: {
     canonical: '/',
   },
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     title: 'BrainKit — Révise plus vite avec l\'IA',
     description: 'Transforme n\'importe quel cours en résumé, flashcards et QCM en 10 secondes. Gratuit, zéro compte.',
     type: 'website',
-    url: 'https://brainkit-dripminds-projects.vercel.app',
+    url: 'https://brainkit-reviseai.vercel.app',
     siteName: 'BrainKit',
     locale: 'fr_FR',
   },
